@@ -7,21 +7,21 @@ var http = require("http"),
 	watcher = require("watchr");  // TODO
 var crypto = require('crypto');
 
-var LinkedEventList = require('./LinkedEventList.js'); 
-var cache = require('./CacheStore.js'); 
-
 var io = require('socket.io')(http);
 
-// defaults
+var LinkedEventList = require('./libs/LinkedEventList.js'); 
+var cache = require('./libs/CacheStore.js'); 
+
+//defaults
+
+var rootDir = process.cwd();
+var useCache = true;
 var protocol = 'http';
 var hostname = 'localhost';
 var port = parseInt(process.argv[2] || 3000,10);
 var defaultPage = 'index.html';
 
-var rootDir = process.cwd();
-var useCache = true;
-
-var config = JSON.parse(fs.readFileSync('./config.json', 'utf-8'));
+var config = JSON.parse(fs.readFileSync('./conf/config.json', 'utf-8'));
 
 // overrides by config.json
 if ( config.protocol)
@@ -42,7 +42,7 @@ if ( (protocol === 'http' && port != 80) || (protocol === 'https' && port != 443
 	serverUrl = serverUrl + ':' + port
 
 var contentTypesByExtension;
-fs.readFile('./mimetypes.json','utf-8', function(err, data){ contentTypesByExtension=JSON.parse(data);});
+fs.readFile('./conf/mimetypes.json','utf-8', function(err, data){ contentTypesByExtension=JSON.parse(data);});
 
 var cache = new cache.CacheStore();
 var eventList = new LinkedEventList.LinkedEventList();
@@ -67,7 +67,7 @@ cache.setWatch(function(filename)
 		io.sockets.emit('update',update);
 	});
 });
-fs.readFile('./precache.json', 'utf-8', function(err, data)
+fs.readFile('./conf/precache.json', 'utf-8', function(err, data)
 {
 	if ( err ) throw err;
 	async.each ( JSON.parse(data), function ( file, callback )
