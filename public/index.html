@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body NONEonload='register()'>
+<script>
+var HttpClient = function() {
+    this.get = function(aUrl, aCallback) {
+        var anHttpRequest = new XMLHttpRequest();
+        anHttpRequest.onreadystatechange = function() { 
+            if (anHttpRequest.readyState == 4 && anHttpRequest.status == 200)
+                aCallback(anHttpRequest.responseText);
+        }
+
+        anHttpRequest.open( "GET", aUrl, true );            
+        anHttpRequest.send( null );
+    }
+}
+
+aClient = new HttpClient();
+if ('serviceWorker' in navigator) {
+	  navigator.serviceWorker.register('sw3.js').then(function(registration) {
+	    // Registration was successful
+	    console.log('ServiceWorker registration successful with scope: ',    registration.scope);
+	  }).catch(function(err) {
+	    // registration failed :(
+	    console.log('ServiceWorker registration failed: ', err);
+	  });
+	}
+	
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io('http://localhost:3000');
+  socket.on('connect', function() { 
+	    console.log('connected');
+	 });
+	 socket.on('message', function(msg){
+	    console.log(msg);
+	 });
+	 socket.on('disconnect', function() {
+	    console.log('disconnected');
+	 });
+
+	
+	 socket.on('error', function (e) {
+	    console.log('System', e ? e : 'A unknown error occurred');
+	 });
+	 socket.on('update', function (data) {
+		 console.log(data);
+		 aClient.get(data.uri, function(response) {
+//			 alert(' loaded '+data);
+			    // do something with response
+			});
+
+		 
+		 
+//		 caches.open('demo-cache').then(function(cache) {
+	//		 console.log("cache open");
+			 
+		//cache.loadFile(file.file);
+//		console.log("cache updated for "+file.file);
+	//	 });
+
+//    socket.emit('my other event', { my: 'data' });
+  });
+</script>
+<iframe src='iframe.html' width=160></iframe>
+<iframe src='iframe2.html' width=160></iframe>
+<iframe src='iframe3.html' width=160></iframe>
+</body>
+</html>
