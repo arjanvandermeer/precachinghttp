@@ -39,7 +39,6 @@ cache.setWatch(function(filename)
 		console.error('Unactionable callback as '+filename+' out of path for '+rootDir);
 		return;
 	}
-	console.log("Call back for "+filename);
 	fs.stat ( filename, function (err, stats ) {
 		var uri = filename.substring(rootDir.length,filename.length);
 		if ( !serverUrl.endsWith('/') && !uri.startsWith('/'))
@@ -49,6 +48,7 @@ cache.setWatch(function(filename)
 		update.uri = uri;
 		update.time = stats.mtime.getTime();
 		var event = eventList.addEvent(stats.mtime.getTime(), uri);
+		console.log("broadcast : "+event);
 		io.sockets.emit('update',update);
 	});
 });

@@ -31,7 +31,8 @@ exports.CacheStore = function()
 		{
 			var file = fs.readFileSync(filename, "binary");
 			this.set(filename, file);
-			if (watchCallback!== undefined && typeof(watchCallback) === "function") 
+			
+			if (this.watchCallback!== undefined && typeof(this.watchCallback) === "function") 
 			{
 				this.watchCallback( filename );
 			}
