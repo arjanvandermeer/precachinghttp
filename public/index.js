@@ -1,5 +1,6 @@
 "use strict";
 
+
 function register()
 {
 if ('serviceWorker' in navigator) {

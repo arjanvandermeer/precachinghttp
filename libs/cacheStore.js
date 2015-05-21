@@ -13,7 +13,7 @@ exports.CacheStore = function()
 	var myStore = [];
 	var myProps = [];
 	var watchCallback;
-
+	
 	this.setProps = function ( filename, props )
 	{
 		myProps[filename]=props;
@@ -22,19 +22,8 @@ exports.CacheStore = function()
 	{
 		return myProps[filename];
 	}
-	this.addWatch = function ( filename )
-	{
-		fs.watchFile( filename, function ( event, target) {
-			try
-			{
-			   	this.loadFile(filename);
-			} catch (err ) 
-			{
-				console.log(err.message);
-				this.remove ( filename );
-			}});
-	};
 	this.loadFile = function(filename, data){
+		// set a callback if not in cache yet
 		if (! this.has ( filename ))
 			this.addWatch(filename);
 
@@ -44,17 +33,30 @@ exports.CacheStore = function()
 			this.set(filename, file);
 			if (watchCallback!== undefined && typeof(watchCallback) === "function") 
 			{
-				watchCallback( filename );
+				this.watchCallback( filename );
 			}
 		} else {
 			this.set(filename, data);
 		}
 	};
+	this.addWatch = function ( filename )
+	{
+		fs.watchFile( filename, function ( event, target) {
+			try
+			{
+				console.log("reload filename "+filename);
+			   	this.loadFile(filename);
+			} catch (err ) 
+			{
+				console.log(err.message);
+				this.remove ( filename );
+			}}.bind(this));
+	};
 	this.setWatch = function ( callback )
 	{
 		if (callback!= undefined && typeof(callback) === "function") 
 		{
-			watchCallback = callback;
+			this.watchCallback = callback;
 		}
 	};
 	this.has = function(key) {

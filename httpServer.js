@@ -13,29 +13,14 @@ var LinkedEventList = require('./libs/LinkedEventList.js');
 var cache = require('./libs/CacheStore.js'); 
 
 //defaults
-
-var rootDir = process.cwd();
-var useCache = true;
-var protocol = 'http';
-var hostname = 'localhost';
-var port = parseInt(process.argv[2] || 3000,10);
-var defaultPage = 'index.html';
-
 var config = JSON.parse(fs.readFileSync('./conf/config.json', 'utf-8'));
 
-// overrides by config.json
-if ( config.protocol)
-	protocol = config.protocol;
-if ( config.hostName )
-	hostname = config.hostname;
-if (config.port)
-	port = parseInt(config.port,10);
-if (config.webRoot)
-	rootDir = config.webRoot;
-if (config.defaultPage)
-	defaultPage = config.defaultPage;
-
-// TODO - support https
+var protocol = 'http';
+var useCache = config.useCache || true;
+var hostname = config.hostname || 'localhost';
+var port = parseInt(config.port || process.argv[2] || 3000,10);
+var defaultPage = config.defaultPage || 'index.html';
+var rootDir = (config.webRoot?path.resolve(''+config.webRoot) : path.resolve('public/')+path.sep);
 var serverUrl = protocol + '://' + hostname;
 
 if ( (protocol === 'http' && port != 80) || (protocol === 'https' && port != 443) )
@@ -49,13 +34,14 @@ var eventList = new LinkedEventList.LinkedEventList();
 
 cache.setWatch(function(filename)
 {
-	if ( ! filename.startsWith(config.webRoot))
+	if ( ! filename.startsWith(rootDir))
 	{
-		console.error('Unactionable callback as '+filename+' out of path for '+config.webRoot);
+		console.error('Unactionable callback as '+filename+' out of path for '+rootDir);
 		return;
 	}
+	console.log("Call back for "+filename);
 	fs.stat ( filename, function (err, stats ) {
-		var uri = filename.substring(config.webRoot.length,filename.length);
+		var uri = filename.substring(rootDir.length,filename.length);
 		if ( !serverUrl.endsWith('/') && !uri.startsWith('/'))
 			uri = '/'+uri;
 
@@ -63,7 +49,6 @@ cache.setWatch(function(filename)
 		update.uri = uri;
 		update.time = stats.mtime.getTime();
 		var event = eventList.addEvent(stats.mtime.getTime(), uri);
-///		console.log(event);
 		io.sockets.emit('update',update);
 	});
 });
@@ -72,7 +57,8 @@ fs.readFile('./conf/precache.json', 'utf-8', function(err, data)
 	if ( err ) throw err;
 	async.each ( JSON.parse(data), function ( file, callback )
 	{
-		cache.loadFile(file.file);
+		console.log(rootDir+file.file);
+		cache.loadFile(rootDir+file.file);
 	});
 });	
 var app=http.createServer(handler);
@@ -85,7 +71,7 @@ io.on('connection', function(socket){
 	socket.on('disconnect', function(){console.log("DISCONNECT")});
 });
 */
-console.log("Static file server running at\n  => " + serverUrl );
+console.log("Static file server running at  => " + serverUrl +" for "+rootDir);
 
 
 function writeString(response, code, headers, body) {
@@ -117,14 +103,19 @@ function handler(request, response)
 	var uri;
 	var filename;
 
-///	console.log(eventList.size()+" = "+eventList.toArray(ev).toString());
-	
 	try
 	{
 		uri = url.parse(request.url).pathname;
+
+
+		if ( uri.indexOf('..')>-1)
+			throw "Invalid URL";
+
 		filename = path.join(rootDir, uri);
 		if (uri.endsWith('/'))
 			filename = filename + defaultPage;
+		
+		console.log("file "+filename+" in cache : "+cache.has(filename));
 		
 		var reqModDate = request.headers["if-modified-since"];
 
@@ -143,8 +134,6 @@ function handler(request, response)
 			return writeString(response, 200, headers, cache.get(filename));
 		}
 
-		// TODO move this functionality into fileCache so that it's the only thing doing something with disks
-
 		var file = fs.readFile(filename, "binary",
 		function(err, file) {
 			if (err) throw ( err );
@@ -152,6 +141,7 @@ function handler(request, response)
 			// TODO move this to async
 			// TODO this doesn't get executed for precached files
 			// TODO change overall structure into parsing -> check cache?fill cache -> response
+			// TODO meanwhile filecache should take care of reading the file in above ccode
 			// TODO doing the above will allow support of 304 header 
 			
 			cache.loadFile(filename,file);
@@ -159,7 +149,7 @@ function handler(request, response)
 			var headers = {};
 			
 			async.parallel([
-			    function(callback) {props.uri = filename.substring(config.webRoot.length,filename.length);callback()},
+			    function(callback) {props.uri = filename.substring(rootDir.length,filename.length);callback();},
 				function(callback) {props.etag = crypto.createHash('md5').update(file).digest('hex');callback();},
 				function(callback) {var extension = path.extname(filename);props.mime = contentTypesByExtension[extension] || 'text/plain';callback();},
 				function(callback) {props.mtime = fs.statSync(filename).mtime;callback();}

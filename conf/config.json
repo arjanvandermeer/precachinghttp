@@ -1,5 +1,5 @@
 {
     "defaultPage": "index.html",
-    "webRoot":"D:\\Development\\src\\CachingHttp\\public\\",
+    "useCache": "true",
     "page.404":"./views/404.html"
 }
