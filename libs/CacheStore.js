@@ -53,6 +53,10 @@ exports.CacheStore = function()
 				this.remove ( filename );
 			}}.bind(this));
 	};
+	this.getWatch = function ()
+	{
+		return this.watchCallback;
+	}
 	this.setWatch = function ( callback )
 	{
 		if (callback!= undefined && typeof(callback) === "function") 
@@ -72,5 +76,19 @@ exports.CacheStore = function()
 	this.remove = function(key) {
 		delete myStore[key];
 		delete myProps[key];
+	}
+	this.clear = function ()
+	{
+		this.myStore=[];
+		this.myProps=[];
+		watchCallback = undefined;
+	}
+	this.size = function () 
+	{
+		return this.myStore.length;
+	}
+	this.isEmpty = function ()
+	{
+		return this.myStore.length==0;
 	}
 };

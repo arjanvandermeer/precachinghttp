@@ -1,7 +1,8 @@
 "use strict";
 
 var assert = require("assert");
-var LinkedEventList = require ("../LinkedEventList.js");
+require("blanket");
+var LinkedEventList = require ("../libs/LinkedEventList.js");
 
 describe('LinkedEventList', function(){
   var eventList;
