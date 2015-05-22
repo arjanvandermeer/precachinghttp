@@ -1,1 +1,0 @@
-mocha --require blanket -R html-cov tests/testCacheStore.js tests/testLinkedEventList.js > coverage.html
