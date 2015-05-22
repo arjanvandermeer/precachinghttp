@@ -79,15 +79,28 @@ describe('Cache Store', function(){
     	cache.setWatch(watchFileMethod);
     	assert.equal ( watchFileMethod, cache.getWatch());
     });
-    it('watcher should get called once', function()
-    	    {
-    			var myCallback = { method: function () {return true;}};
-    			var callbackSpy = sinon.spy(myCallback, "method");
-//    	    	cache.setWatch(myCallback.method);
-    			  cache.loadFile("index.html");
+    it('watcher should get called at least once when reloading file', function()
+	    {
+			var myCallback = { method: function () {return true;}};
+			var callbackSpy = sinon.spy(myCallback, "method");
+	    	cache.setWatch(myCallback.method);
+		  cache.loadFile("index.html");
 
-    	    	assert(callbackSpy.calledOnce);
-//    	    	assert.equal ( watchFileMethod, cache.getWatch());
-    	    });
+	    	assert(callbackSpy.called);
+	    });
+    it('watcher should get called at least once on fs trigger', function()
+	    {
+    		// create stub for the filesystem watcher, which will immediately callback 
+    		watchFileStub.withArgs("index.html").callsArgAsync(2);
+
+    		// create callbackk and spy for the callback
+			var myCallback = { method: function () {console.log("in callback");return true;}};
+			var callbackSpy = sinon.spy(myCallback, "method");
+	    	cache.setWatch(myCallback.method);
+
+//	    	cache.loadFile("index.html");
+	    	
+	    	assert(callbackSpy.calledOnce);
+	    });
   });
 });
