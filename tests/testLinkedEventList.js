@@ -23,19 +23,18 @@ describe('LinkedEventList', function(){
     	assert.equal(0, eventList.size());
     	assert.equal(true, eventList.isEmpty());
     	
-    	eventList.add(2,"first");
+    	eventList.addEvent(2,"first");
     	assert.equal(false, eventList.isEmpty());
     });
-    it('should have a size of 5 in ascending order after adding 5 items in adjacent order', function(){
+    it('should have a size of 5 in ascending order after adding 5 items in descending order', function(){
     	eventList.clear();
     	eventList.addEvent(10, "fifth");
     	eventList.addEvent(8, "fourth");
     	eventList.addEvent(6, "third");
     	eventList.addEvent(4, "second");
     	eventList.addEvent(2, "first");
-    	assert.equal(5, eventList.size());
-    	assert.equal(eventList.first.value,2);
-    	assert.equal(eventList.last.value,10);
+    	assert.equal(eventList.head().value,2);
+    	assert.equal(eventList.tail().value,10);
     });
     it('should have a size of 5 in ascending order after adding 5 items in random order', function(){
     	eventList.clear();
@@ -45,8 +44,8 @@ describe('LinkedEventList', function(){
     	eventList.addEvent(2, "first");
     	eventList.addEvent(8, "fourth");
     	assert.equal(5, eventList.size());
-    	assert.equal(eventList.first.value,2);
-    	assert.equal(eventList.last.value,10);
+    	assert.equal(eventList.head().value,2);
+    	assert.equal(eventList.tail().value,10);
     });
   })
   describe('tests on LinkedList() filled with 2/4/6/8/10', function(){
@@ -63,8 +62,8 @@ describe('LinkedEventList', function(){
 	    });	 
     it('should have a size of 5 in ascending order after adding 5 items in ascending order', function(){
     	assert.equal(5, eventList.size());
-    	assert.equal(eventList.first.value,2);
-    	assert.equal(eventList.last.value,10);
+    	assert.equal(eventList.head().value,2);
+    	assert.equal(eventList.tail().value,10);
     });
     it('should have a working clear function', function(){
     	eventList.clear();
@@ -143,7 +142,7 @@ describe('LinkedEventList', function(){
     });
     it('toArray with last elements returns an array with 1 length', function(){
     	var events = [];
-    	events = eventList.toArray(eventList.last);
+    	events = eventList.toArray(eventList.tail());
     	assert.equal(1, events.length);
     });
   });

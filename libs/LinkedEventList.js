@@ -1,7 +1,5 @@
 "use strict";
 
-
-
 exports.Event = function(avalue, adescription)
 {
 	var previous=false;
@@ -50,45 +48,46 @@ exports.LinkedEventList = function()
 		//	}
 
 		// this allows for race conditions
-		if ( this.counter === undefined )
-			this.counter=0;
+		if ( counter === undefined )
+			counter=0;
 		
 		var deleteEvent;
 		if ( !this.duplicateDescriptions )
 		{
 			deleteEvent = this.findDescription ( event.description );
 		}
+
 		if ( this.isEmpty() )
 		{
-			this.first = event;
-			this.last = event;
-			this.counter = 1;
-		} else if ( event.value < this.first.value ) {
-			this.first = this.first.insertBefore(event).previous;
-			this.counter++;
-		} else if ( event.value > this.last.value ) {
-			this.last = this.last.insertAfter(event).next;
-			this.counter++;
+			first = event;
+			last = event;
+			counter = 1;
+		} else if ( event.value < first.value ) {
+			first = first.insertBefore(event).previous;
+			counter++;
+		} else if ( event.value > last.value ) {
+			last = last.insertAfter(event).next;
+			counter++;
 		} else {
 			this.findFirstValue(event.value).insertBefore(event);
-			this.counter++;
+			counter++;
 		}
 		
 		if ( deleteEvent !== undefined )
 			this.remove ( deleteEvent );
 
-		return this.counter;
+		return counter;
 	};
 	this.isEmpty = function ( )
 	{
-		return this.first === undefined && this.last === undefined ;
+		return first === undefined && last === undefined ;
 	};
 	this.findValue = function ( value )
 	{
-		if ( this.isEmpty () || value < this.first.value || value > this.last.value )
+		if ( this.isEmpty () || value < first.value || value > last.value )
 			return undefined;
 
-		var event=this.first;
+		var event=first;
 
 		while(event !== undefined && event.value !== value)
 		{
@@ -98,37 +97,31 @@ exports.LinkedEventList = function()
 	};
 	this.remove = function ( element )
 	{
-		try
-		{
-			var previous = element.previous;
-			var next = element.next;
-			if ( previous !== undefined )
-				element.previous.next = next;
+			var myprevious = element.previous;
+			var mynext = element.next;
+			if ( myprevious !== undefined )
+				element.previous.next = mynext;
 			else
-				this.first = next;
+				first = mynext;
 			
-			if ( next !== undefined )
-				element.next.previous = previous;
+			if ( mynext !== undefined )
+				element.next.previous = myprevious;
 			else
-				this.last = previous;
+				last = myprevious;
 			
-			this.counter--;
-		} catch (err )
-		{
-			console.log(err);
-		}
+			counter--;
 	};
 
 	this.findFirstValue = function ( value )
 	{
 		if ( this.isEmpty ())
 			return undefined;
-		if ( value < this.first.value )
-			return this.first;
-		if ( value > this.last.value )
+		if ( value < first.value )
+			return first;
+		if ( value > last.value )
 			return undefined;
 
-		var event=this.first;
+		var event=first;
 
 		while(event !== undefined && event.value < value)
 		{
@@ -156,7 +149,7 @@ exports.LinkedEventList = function()
 */
 	this.findDescription = function ( description )
 	{
-		var event=this.first;
+		var event=first;
 		var x=0;
 		while(event !== undefined && event.description !== description)
 		{
@@ -166,10 +159,10 @@ exports.LinkedEventList = function()
 	};
 	this.get = function ( item )
 	{
-		if ( item < 0 || item > this.counter)
+		if ( item < 0 || item > counter)
 			return undefined;
 	
-		var event=this.first;
+		var event=first;
 		var x=0;
 		while(event !== undefined && x++<item)
 		{
@@ -179,9 +172,18 @@ exports.LinkedEventList = function()
 	};
 	this.clear = function ()
 	{
-		this.counter=0;
-		this.first = undefined;
-		this.last = undefined;
+		counter=0;
+		first = undefined;
+		last = undefined;
+	}
+	this.head = function()
+	{
+		return first;
+	}
+	
+	this.tail = function()
+	{
+		return last;
 	}
 	
 	// allows (optionally) to give a "since" event
@@ -196,7 +198,7 @@ exports.LinkedEventList = function()
 		
 		var event;
 		if ( eventFrom === undefined)
-			event = this.first;
+			event = first;
 		else {
 			event = eventFrom;
 		}
@@ -210,10 +212,8 @@ exports.LinkedEventList = function()
 	};
 	this.size = function ()
 	{
-		if ( this.counter === undefined )
-			this.counter = 0;
-		return this.counter;
+		if ( counter === undefined )
+			counter = 0;
+		return counter;
 	}
 }
-
-

@@ -32,9 +32,9 @@ exports.CacheStore = function()
 			var file = fs.readFileSync(filename, "binary");
 			this.set(filename, file);
 			
-			if (this.watchCallback!== undefined && typeof(this.watchCallback) === "function") 
+			if (watchCallback!== undefined && typeof(watchCallback) === "function") 
 			{
-				this.watchCallback( filename );
+				watchCallback( filename );
 			}
 		} else {
 			this.set(filename, data);
@@ -55,13 +55,13 @@ exports.CacheStore = function()
 	};
 	this.getWatch = function ()
 	{
-		return this.watchCallback;
+		return watchCallback;
 	}
 	this.setWatch = function ( callback )
 	{
 		if (callback!= undefined && typeof(callback) === "function") 
 		{
-			this.watchCallback = callback;
+			watchCallback = callback;
 		}
 	};
 	this.has = function(key) {
@@ -79,16 +79,16 @@ exports.CacheStore = function()
 	}
 	this.clear = function ()
 	{
-		this.myStore=[];
-		this.myProps=[];
+		myStore=[];
+		myProps=[];
 		watchCallback = undefined;
 	}
 	this.size = function () 
 	{
-		return this.myStore.length;
+		return myStore.length;
 	}
 	this.isEmpty = function ()
 	{
-		return this.myStore.length==0;
+		return myStore.length==0;
 	}
 };
