@@ -3,7 +3,7 @@
 var assert = require("assert");
 var sinon = require("sinon");
 var fs = require("fs");
-var blanket = require("blanket");
+require("blanket");
 
 var config = require("config");
 
