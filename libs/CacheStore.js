@@ -10,6 +10,8 @@ var crypto = require('crypto');
 
 exports.CacheStore = function()
 {
+	// TODO : Rewrite to private properties, rather than public variables
+	
 	var myStore = [];
 	var myProps = [];
 	var watchCallback;
@@ -29,16 +31,20 @@ exports.CacheStore = function()
 
 		if ( data === undefined)
 		{
-			var file = fs.readFileSync(filename, "binary");
-			this.set(filename, file);
-			
-			if (watchCallback!== undefined && typeof(watchCallback) === "function") 
-			{
-				watchCallback( filename );
-			}
-		} else {
-			this.set(filename, data);
+			data = fs.readFileSync(filename, "binary");
 		}
+
+		this.set(filename, data);
+
+		// if a callback function was defined, call it now
+		// TODO should be async
+		
+		if (watchCallback!== undefined && typeof(watchCallback) === "function") 
+		{
+			watchCallback( filename );
+		}
+
+		return data;
 	};
 	this.addWatch = function ( filename )
 	{

@@ -43,9 +43,10 @@ exports.LinkedEventList = function()
 	}
 	this.add = function ( event )
 	{
-//		if ( typeof ( event ) !== Event )
-	//		{
-		//	}
+//		if ( typeof ( event ) !== "Event" )
+	//	{
+		//	throw ("add only accepts object type of Event")
+	//	}
 
 		// this allows for race conditions
 		if ( counter === undefined )
