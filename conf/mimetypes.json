@@ -1,8 +1,0 @@
-{
-	".html" : "text/html",
-	".css" : "text/css",
-	".js" : "text/javascript",
-	".jpeg" : "image/jpeg",
-	".jpg" : "image/jpeg",
-	".ico" : "image/x-icon"
-}

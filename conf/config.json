@@ -1,5 +1,0 @@
-{
-    "defaultPage": "index.html",
-    "useCache": "true",
-    "page.404":"./views/404.html"
-}
