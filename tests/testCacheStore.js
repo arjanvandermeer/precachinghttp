@@ -53,6 +53,14 @@ describe('Cache Store', function(){
 		  cache.loadFile("index.html");
 		  cache.loadFile("index.js");
 	  });	 
+	it('should have a working has function', function()
+	    {
+	    	var indexjs = cache.get("index.js");
+	    	var indexhtml = cache.get("index.html");
+	    	assert.equal(true, cache.has("index.js"));
+	    	assert.equal(true, cache.has("index.html"));
+	    	assert.equal(false, cache.has("default.aspx"));
+	    });
 	it('should have a working loadFile function', function()
     {
     	var indexjs = cache.get("index.js");
