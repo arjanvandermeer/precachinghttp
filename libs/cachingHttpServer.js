@@ -82,13 +82,24 @@ exports.cachingHttpServer = function(config, cache)
 	}
 	this.start= function ()
 	{
-		var app = http.createServer(this.handler);
-		app.listen(this.port);
-		var socket = io.listen(app);
-		console.log("Static file server running at  => " + this.serverUrl + " for "+ this.rootDir);	
+		try
+		{
+			var app = http.createServer(this.handler);
+			app.listen(this.port);
+			var socket = io.listen(app);
+			console.log("Static file server running at  => " + this.serverUrl + " for "+ this.rootDir);	
+		} catch ( err )
+		{
+			console.log(err);
+		}
 	}
 	this.loadFile= function ( filename )
 	{
+		if (! path.isAbsolute(filename ))
+			filename = this.rootDir + filename;
+
+		console.log("loading "+filename);
+
 		var file = cache.loadFile ( filename );
 		var props = {};
 		var headers = {};
@@ -160,6 +171,10 @@ exports.cachingHttpServer = function(config, cache)
 	this.getDefaultPage = function ()
 	{
 		return this.defaultPage;
+	}
+	this.getRoot = function ()
+	{
+		return this.rootDir;
 	}
 	this.CacheCallbackHandler = function(filename) {
 		if (!filename.startsWith(this.rootDir)) {
