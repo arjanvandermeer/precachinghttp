@@ -45,6 +45,7 @@ exports.cachingHttpServer = function(config, cache)
 
 		if (body !== undefined)
 			response.write(body, 'binary');
+
 		response.end();
 	}
 	/*
