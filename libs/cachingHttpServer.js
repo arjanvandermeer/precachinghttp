@@ -42,40 +42,70 @@ exports.cachingHttpServer = function(config, cache)
 
 	this.writeString= function (response, code, headers, body) {
 		response.writeHead(code, headers);
+
 		if (body !== undefined)
 			response.write(body, 'binary');
 		response.end();
 	}
+	/*
+	this.translateUriToFile = function ( request )
+	{
+		console.log(">"+request.url);
+		uri = url.parse(request.url).pathname;
+
+		if (uri.indexOf('..') > -1)
+			throw "Invalid URL";
+
+		
+		var filename = path.join(this.rootDir, uri);
+		if (uri.endsWith('/'))
+			filename = filename + defaultPage;
+		
+		return filename;
+	}*/
+
 	this.handler = function(request, response) 
 	{
 		try
 		{
-			var filename = this.translateUriToFile(request);
+//			console.log("request uri "+request.url);
+
+			var uri = url.parse(request.url).pathname;
+			if (uri.indexOf('..') > -1)
+				throw "Invalid URL";
 			
-			console.log("file " + filename + " in cache : " + cache.has(filename));
+//			if ( uri === '/shutdown' )
+//				process.exit(0);
+
+			var filename = path.join(''+this.rootDir, ''+uri);
+			if (uri.endsWith('/'))
+				filename = filename + defaultPage;
 			
-			var filename;
+			console.log ("hit for "+filename+" in cache "+this.inCache(filename));
+			
 			if (! this.inCache ( filename ))
 			{
 				this.loadFile(filename);
-			}
+			} 
 			
 			var reqModDate = request.headers["if-modified-since"];
 			var reqETag = request.headers["etag"];
 	
 			var headers = cache.getProps(filename).headers;
 			
-			if (reqModDate !== null && new Date(reqModDate).getTime() === props.mtime.getTime())
-					return writeString(response, 304, headers);
-			if (reqEtag !== null && reqEtag === props.headers.etag)
-					return writeString(response, 304, headers);
+			if (reqModDate !== undefined && new Date(reqModDate).getTime() === cache.getProps(filename).mtime.getTime())
+					return this.writeString(response, 304, headers);
+			if (reqETag !== undefined && reqETag === headers.etag)
+					return this.writeString(response, 304, headers);
 			
-			return writeString(response, 200, headers, cache.get(filename));
+			return this.writeString(response, 200, headers, this.getFile(filename));
 		} catch (err) {
 			if (err.code === 'ENOENT')
-				return writeString(response, code, { "Content-Type" : "text/plain"	}, 'file not found');
-			else 
-				return writeString(response, code, { "Content-Type" : "text/plain"	}, 'fatal error '+err);
+				return this.writeString(response, 404, { "Content-Type" : "text/plain"	}, 'file not found');
+			else {
+				console.error ( err );
+				return this.writeString(response, 500, { "Content-Type" : "text/plain"	}, 'fatal error '+err);
+			}
 		} finally {
 			//
 		}
@@ -112,6 +142,8 @@ exports.cachingHttpServer = function(config, cache)
 		var extension = path.extname(filename);
 		props.mime = this.getMimetype(extension);
 		props.mtime = fs.statSync(filename).mtime;
+// TODO verify this against fs length
+		props.size = file.length;
 
 		headers['Etag'] = props.etag;
 		headers['Content-Type'] = props.mime;
@@ -132,18 +164,6 @@ exports.cachingHttpServer = function(config, cache)
 		if ( ! cache.has ( filename ))
 			this.loadFile ( filename);
 		return cache.getProps ( filename );
-	}
-	this.translateUriToFile = function ( request )
-	{
-		uri = url.parse(request.url).pathname;
-
-		if (uri.indexOf('..') > -1)
-			throw "Invalid URL";
-
-		filename = path.join(this.rootDir, uri);
-		if (uri.endsWith('/'))
-			filename = filename + defaultPage;
-
 	}
 	this.inCache = function( filename )
 	{
@@ -175,6 +195,10 @@ exports.cachingHttpServer = function(config, cache)
 	this.getRoot = function ()
 	{
 		return this.rootDir;
+	}
+	this.getUrl = function ()
+	{
+		return this.serverUrl;
 	}
 	this.CacheCallbackHandler = function(filename) {
 		if (!filename.startsWith(this.rootDir)) {

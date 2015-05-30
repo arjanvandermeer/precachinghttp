@@ -3,10 +3,10 @@
 var fs = require("fs");
 var async = require("async");
 var config = require("config");
+var http = require("http");
 
 var LinkedEventList = require('./libs/LinkedEventList.js');
 var cache = require('./libs/CacheStore.js');
-
 var cache = new cache.CacheStore();
 var eventList = new LinkedEventList.LinkedEventList();
 
@@ -28,4 +28,7 @@ fs.readFile('./config/precache.json', 'utf-8', function(err, data) {
 	});
 });
 
-httpServer.start();
+var app = http.createServer(httpServer.handler.bind(httpServer));
+app.listen(httpServer.getPort());
+console.log("Static file server running at  => " + httpServer.getUrl() );	
+//var socket = io.listen(app);
