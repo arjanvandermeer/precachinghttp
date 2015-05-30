@@ -8,11 +8,6 @@ This is more intended as a toy than as a serious project, hence support for olde
 
 ## Usage
 
-## Known issues
-
-After ~15,000 hits from ab, the response time shoots up.
-ab -n 20000 -c 4 http://localhost:3000/baby.jpg
-
 ## Developing
 
 
