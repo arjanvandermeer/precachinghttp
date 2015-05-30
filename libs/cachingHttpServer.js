@@ -80,7 +80,7 @@ exports.cachingHttpServer = function(config, cache)
 
 			var filename = path.join(''+this.rootDir, ''+uri);
 			if (uri.endsWith('/'))
-				filename = filename + defaultPage;
+				filename = filename + this.defaultPage;
 			
 //			console.log ("hit for "+filename+" in cache "+this.inCache(filename));
 			
