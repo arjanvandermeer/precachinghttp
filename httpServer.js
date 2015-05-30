@@ -13,7 +13,7 @@ var eventList = new LinkedEventList.LinkedEventList();
 var server = require('./libs/cachingHttpServer.js');
 var httpServer = new server.cachingHttpServer(config, cache);
 
-fs.readFileSync('./config/mimetypes.json', 'utf-8', function(err, data) {
+fs.readFile('./config/mimetypes.json', 'utf-8', function(err, data) {
 	if (err)
 		throw err;
 	var contentTypesByExtension = JSON.parse(data);
