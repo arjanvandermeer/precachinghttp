@@ -9,9 +9,10 @@
   "author": "Arjan van der Meer",
   "license": "ISC",
   "dependencies": {
-    "async": "^2.7.4",
+    "async": "*",
     "config": "^1.13.0",
-    "socket.io": "^1.3.5"
+    "socket.io": "^1.3.5",
+    "request":"*"
   },
   "devDependencies": {
     "chai": "*",
