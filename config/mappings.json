@@ -1,0 +1,10 @@
+[
+	{	
+		"path":"/public",
+		"location":"file:///Users/arjanvandermeer/Development/src/precachinghttp/public"
+	},
+	{	
+		"path":"/google",
+		"location":"https://www.google.com/images/branding/googlelogo/2x"
+	}
+]
